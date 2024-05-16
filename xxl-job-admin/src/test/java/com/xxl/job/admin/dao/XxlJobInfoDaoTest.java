@@ -1,18 +1,20 @@
 package com.xxl.job.admin.dao;
 
 import com.xxl.job.admin.core.model.XxlJobInfo;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.xxl.job.admin.core.scheduler.MisfireStrategyEnum;
+import com.xxl.job.admin.core.scheduler.ScheduleTypeEnum;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class XxlJobInfoDaoTest {
+	private static Logger logger = LoggerFactory.getLogger(XxlJobInfoDaoTest.class);
 	
 	@Resource
 	private XxlJobInfoDao xxlJobInfoDao;
@@ -21,9 +23,9 @@ public class XxlJobInfoDaoTest {
 	public void pageList(){
 		List<XxlJobInfo> list = xxlJobInfoDao.pageList(0, 20, 0, -1, null, null, null);
 		int list_count = xxlJobInfoDao.pageListCount(0, 20, 0, -1, null, null, null);
-		
-		System.out.println(list);
-		System.out.println(list_count);
+
+		logger.info("", list);
+		logger.info("", list_count);
 
 		List<XxlJobInfo> list2 = xxlJobInfoDao.getJobsByGroup(1);
 	}
@@ -32,10 +34,12 @@ public class XxlJobInfoDaoTest {
 	public void save_load(){
 		XxlJobInfo info = new XxlJobInfo();
 		info.setJobGroup(1);
-		info.setJobCron("jobCron");
 		info.setJobDesc("desc");
 		info.setAuthor("setAuthor");
 		info.setAlarmEmail("setAlarmEmail");
+		info.setScheduleType(ScheduleTypeEnum.FIX_RATE.name());
+		info.setScheduleConf(String.valueOf(33));
+		info.setMisfireStrategy(MisfireStrategyEnum.DO_NOTHING.name());
 		info.setExecutorRouteStrategy("setExecutorRouteStrategy");
 		info.setExecutorHandler("setExecutorHandler");
 		info.setExecutorParam("setExecutorParam");
@@ -52,7 +56,9 @@ public class XxlJobInfoDaoTest {
 		int count = xxlJobInfoDao.save(info);
 
 		XxlJobInfo info2 = xxlJobInfoDao.loadById(info.getId());
-		info2.setJobCron("jobCron2");
+		info.setScheduleType(ScheduleTypeEnum.FIX_RATE.name());
+		info.setScheduleConf(String.valueOf(44));
+		info.setMisfireStrategy(MisfireStrategyEnum.FIRE_ONCE_NOW.name());
 		info2.setJobDesc("desc2");
 		info2.setAuthor("setAuthor2");
 		info2.setAlarmEmail("setAlarmEmail2");

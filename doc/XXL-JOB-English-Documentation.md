@@ -397,9 +397,8 @@ Source code is organized by maven,unzip it and structure is as follows:
     xxl-job-admin：schedule admin center
     xxl-job-core：public common dependent library
     xxl-job-executor：executor Sample(Select appropriate version of executor,Can be used directly,You can also refer to it and transform existing projects into executors）
-        ：xxl-job-executor-sample-spring：Spring version，executors managed by Spring，general and recommend;
+        ：xxl-job-executor-sample-spring：Spring version，executors managed by Spring，general and recommend;
         ：xxl-job-executor-sample-springboot：Springboot version，executors managed by Springboot;
-        ：xxl-job-executor-sample-jfinal：JFinal version，executors managed by JFinal;
 	
 ### 2.3 Configure and delploy "Schedule Center"	
 
@@ -974,7 +973,8 @@ When “分片广播” is selected as route policy in executor cluster, one tas
 
 The develop process of "分片广播" is the same as general task, The difference is that you can get slice parameters，code as shown below（go and see ShardingJobHandler in execuotr example ):
 
-    ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
+    int shardIndex = XxlJobContext.getXxlJobContext().getShardIndex();
+    int shardTotal = XxlJobContext.getXxlJobContext().getShardTotal();
     
 This slice parameter object has two properties:
 
