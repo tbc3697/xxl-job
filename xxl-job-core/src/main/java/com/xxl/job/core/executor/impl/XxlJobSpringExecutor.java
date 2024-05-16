@@ -27,14 +27,19 @@ import java.util.Map;
 public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationContextAware, SmartInitializingSingleton, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(XxlJobSpringExecutor.class);
 
+    private final boolean atOnce;
+
+    public XxlJobSpringExecutor() {
+        this(true);
+    }
+
+    public XxlJobSpringExecutor(boolean asOnce) {
+        this.atOnce = asOnce;
+    }
 
     // start
     @Override
     public void afterSingletonsInstantiated() {
-
-        // init JobHandler Repository
-        /*initJobHandlerRepository(applicationContext);*/
-
         // init JobHandler Repository (for method)
         initJobHandlerMethodRepository(applicationContext);
 
@@ -42,10 +47,12 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         GlueFactory.refreshInstance(1);
 
         // super start
-        try {
-            super.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (atOnce) {
+            try {
+                super.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
