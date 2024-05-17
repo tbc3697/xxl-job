@@ -10,7 +10,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
@@ -91,34 +90,37 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         // init job handler from method
         String[] beanDefinitionNames = applicationContext.getBeanNamesForType(Object.class, false, true);
         for (String beanDefinitionName : beanDefinitionNames) {
-
             // get bean
-            Object bean = null;
-            Lazy onBean = applicationContext.findAnnotationOnBean(beanDefinitionName, Lazy.class);
-            if (onBean!=null){
-                logger.debug("xxl-job annotation scan, skip @Lazy Bean:{}", beanDefinitionName);
+            // Object bean = null;
+            // Lazy onBean = applicationContext.findAnnotationOnBean(beanDefinitionName, Lazy.class);
+            // if (onBean!=null){
+            //     logger.debug("xxl-job annotation scan, skip @Lazy Bean:{}", beanDefinitionName);
+            //     continue;
+            // }else {
+            //     bean = applicationContext.getBean(beanDefinitionName);
+            // }
+
+            Class<?> beanType = applicationContext.getType(beanDefinitionName);
+            if (beanType == null) {
                 continue;
-            }else {
-                bean = applicationContext.getBean(beanDefinitionName);
             }
 
             // filter method
-            Map<Method, XxlJob> annotatedMethods = null;   // referred to ：org.springframework.context.event.EventListenerMethodProcessor.processBean
+            // referred to ：org.springframework.context.event.EventListenerMethodProcessor.processBean
+            Map<Method, XxlJob> annotatedMethods = null;
             try {
-                annotatedMethods = MethodIntrospector.selectMethods(bean.getClass(),
-                        new MethodIntrospector.MetadataLookup<XxlJob>() {
-                            @Override
-                            public XxlJob inspect(Method method) {
-                                return AnnotatedElementUtils.findMergedAnnotation(method, XxlJob.class);
-                            }
-                        });
+                annotatedMethods = MethodIntrospector.selectMethods(
+                        beanType,
+                        (MethodIntrospector.MetadataLookup<XxlJob>) method -> AnnotatedElementUtils.findMergedAnnotation(method, XxlJob.class)
+                );
             } catch (Throwable ex) {
                 logger.error("xxl-job method-jobhandler resolve error for bean[" + beanDefinitionName + "].", ex);
             }
-            if (annotatedMethods==null || annotatedMethods.isEmpty()) {
+            if (annotatedMethods == null || annotatedMethods.isEmpty()) {
                 continue;
             }
 
+            Object bean = applicationContext.getBean(beanDefinitionName, beanType);
             // generate and regist method job handler
             for (Map.Entry<Method, XxlJob> methodXxlJobEntry : annotatedMethods.entrySet()) {
                 Method executeMethod = methodXxlJobEntry.getKey();
