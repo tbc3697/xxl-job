@@ -249,47 +249,6 @@ public class XxlJobExecutor {
     }
 
 
-    protected void registJobHandler(IJobHandler bean) {
-        // make and simplify the variables since they'll be called several times later
-        Class<?> clazz = bean.getClass();
-        Method executeMethod = null;
-        try {
-            executeMethod = clazz.getMethod("execute");
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-        String methodName = executeMethod.getName();
-        String beanName = bean.getJobName();
-        if (beanName.trim().isEmpty()) {
-            throw new RuntimeException("xxl-job method-jobhandler name invalid, for[" + clazz + "#" + methodName + "] .");
-        }
-        if (loadJobHandler(beanName) != null) {
-            throw new RuntimeException("xxl-job jobhandler[" + beanName + "] naming conflicts.");
-        }
-
-        executeMethod.setAccessible(true);
-
-        // init and destroy
-        Method initMethod = null;
-        Method destroyMethod = null;
-
-        try {
-            initMethod = clazz.getDeclaredMethod("init");
-            initMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("xxl-job method-jobhandler initMethod invalid, for[" + clazz + "#" + methodName + "] .");
-        }
-        try {
-            destroyMethod = clazz.getDeclaredMethod("destroy");
-            destroyMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("xxl-job method-jobhandler destroyMethod invalid, for[" + clazz + "#" + methodName + "] .");
-        }
-
-        // registry jobhandler
-        registJobHandler(beanName, new MethodJobHandler(bean, executeMethod, initMethod, destroyMethod));
-    }
-
     // ---------------------- job thread repository ----------------------
     private static ConcurrentMap<Integer, JobThread> jobThreadRepository = new ConcurrentHashMap<Integer, JobThread>();
 
