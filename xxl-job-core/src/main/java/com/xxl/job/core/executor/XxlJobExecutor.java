@@ -259,7 +259,7 @@ public class XxlJobExecutor {
             throw new RuntimeException(e);
         }
         String methodName = executeMethod.getName();
-        String beanName = bean.getName();
+        String beanName = bean.getJobName();
         if (beanName.trim().isEmpty()) {
             throw new RuntimeException("xxl-job method-jobhandler name invalid, for[" + clazz + "#" + methodName + "] .");
         }

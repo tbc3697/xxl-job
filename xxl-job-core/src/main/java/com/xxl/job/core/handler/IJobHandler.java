@@ -34,7 +34,7 @@ public abstract class IJobHandler {
 		// do something
 	}
 
-	public String getName() {
+	public String getJobName() {
 		return "";
 	}
 

@@ -2,6 +2,7 @@ package com.xxl.job.core.executor.impl;
 
 import com.xxl.job.core.executor.XxlJobExecutor;
 import com.xxl.job.core.glue.GlueFactory;
+import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,8 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
     public void afterSingletonsInstantiated() {
         // init JobHandler Repository (for method)
         initJobHandlerMethodRepository(applicationContext);
+
+        // init JobHandler Repository (for IJobHandler)
 
         // refresh GlueFactory
         GlueFactory.refreshInstance(1);
@@ -83,6 +86,21 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         }
     }*/
 
+    private void initJobHandlerRepository(ApplicationContext applicationContext) {
+        if (applicationContext == null) {
+            return;
+        }
+        String[] beanDefinitionNames = applicationContext.getBeanNamesForType(IJobHandler.class, false, true);
+        for (String beanDefinitionName : beanDefinitionNames) {
+            IJobHandler jobHandler = applicationContext.getBean(IJobHandler.class);
+            if (jobHandler == null) {
+                continue;
+            }
+            registJobHandler(jobHandler.getJobName(), jobHandler);
+        }
+
+    }
+
     private void initJobHandlerMethodRepository(ApplicationContext applicationContext) {
         if (applicationContext == null) {
             return;
@@ -90,16 +108,6 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         // init job handler from method
         String[] beanDefinitionNames = applicationContext.getBeanNamesForType(Object.class, false, true);
         for (String beanDefinitionName : beanDefinitionNames) {
-            // get bean
-            // Object bean = null;
-            // Lazy onBean = applicationContext.findAnnotationOnBean(beanDefinitionName, Lazy.class);
-            // if (onBean!=null){
-            //     logger.debug("xxl-job annotation scan, skip @Lazy Bean:{}", beanDefinitionName);
-            //     continue;
-            // }else {
-            //     bean = applicationContext.getBean(beanDefinitionName);
-            // }
-
             Class<?> beanType = applicationContext.getType(beanDefinitionName);
             if (beanType == null) {
                 continue;
