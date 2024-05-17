@@ -71,10 +71,7 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         String[] beanDefinitionNames = applicationContext.getBeanNamesForType(IJobHandler.class, false, true);
         for (String beanDefinitionName : beanDefinitionNames) {
             IJobHandler jobHandler = applicationContext.getBean(IJobHandler.class);
-            if (jobHandler == null) {
-                continue;
-            }
-            registJobHandler(jobHandler.getJobName(), jobHandler);
+            registJobHandler(beanDefinitionName, jobHandler);
         }
 
     }
