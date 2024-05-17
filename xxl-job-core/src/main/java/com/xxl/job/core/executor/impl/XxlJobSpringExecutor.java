@@ -43,6 +43,7 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
         initJobHandlerMethodRepository(applicationContext);
 
         // init JobHandler Repository (for IJobHandler)
+        initJobHandlerRepository(applicationContext);
 
         // refresh GlueFactory
         GlueFactory.refreshInstance(1);
@@ -62,29 +63,6 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
     public void destroy() {
         super.destroy();
     }
-
-
-    /*private void initJobHandlerRepository(ApplicationContext applicationContext) {
-        if (applicationContext == null) {
-            return;
-        }
-
-        // init job handler action
-        Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(JobHandler.class);
-
-        if (serviceBeanMap != null && serviceBeanMap.size() > 0) {
-            for (Object serviceBean : serviceBeanMap.values()) {
-                if (serviceBean instanceof IJobHandler) {
-                    String name = serviceBean.getClass().getAnnotation(JobHandler.class).value();
-                    IJobHandler handler = (IJobHandler) serviceBean;
-                    if (loadJobHandler(name) != null) {
-                        throw new RuntimeException("xxl-job jobhandler[" + name + "] naming conflicts.");
-                    }
-                    registJobHandler(name, handler);
-                }
-            }
-        }
-    }*/
 
     private void initJobHandlerRepository(ApplicationContext applicationContext) {
         if (applicationContext == null) {
